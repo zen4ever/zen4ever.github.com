@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  
+  <meta charset="utf-8" />
+
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width" />
+
+  <title>Andrii Kurinnyi's Blog - django</title>
+
+  
+  <link href="http://www.zen4ever.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Andrii Kurinnyi's Blog Atom Feed" />
+  
+  
+  
+  <link href="http://www.zen4ever.com/feeds/%s.atom.xml" type="application/atom+xml" rel="alternate" title="Andrii Kurinnyi's Blog Categories Atom Feed" />
+  
+  
+  
+  
+  
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700' rel='stylesheet' type='text/css'>
+  <!-- Included CSS Files (Compressed) -->
+  <link rel="stylesheet" href=".././theme/stylesheets/foundation.min.css" type="text/css" />
+  <link rel="stylesheet" href=".././theme/stylesheets/pygment.css" type="text/css" />
+  <link rel="stylesheet" href=".././theme/stylesheets/main.css" type="text/css" />
+
+  <script src=".././theme/javascripts/modernizr.foundation.js"></script>
+
+  <!-- IE Fix for HTML5 Tags -->
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  
+</head>
+<body>
+  
+<a href="https://github.com/zen4ever/" class="hide-for-small">
+
+<img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" />
+
+</a>
+
+  <!-- Top Bar -->
+
+  <div class="contain-to-grid">
+    <nav class="top-bar">
+      <ul>
+        <!-- Title Area -->
+        <li class="name">
+          <h1><a href="../.">Andrii Kurinnyi's Blog </a></h1>
+        </li>
+      </ul>
+
+        <!-- Right Nav Section -->
+        <section>
+          <ul class="right">
+          
+          
+          
+          
+              <li class="divider"></li>
+          </ul>
+        </section>
+    </nav>
+  </div>
+
+  <!-- End Top Bar -->
+
+  <div class="row">
+    <div class="nine columns" role="content">
+              
+
+            
+
+        
+        
+            <div class="body">
+                <article>
+                    <h2 class="entry-title"><a href=".././django-sphinx-and-search-by-distance.html">Django, Sphinx and search by distance</a></h2> 
+                    <div class="post-info panel primary right">
+  <h6><abbr class="published" title="2010-06-10T08:44:00">Thu 10 June 2010</abbr>
+        
+        <address class="vcard author">
+                by <a class="url fn" href=".././author/andrii-kurinnyi.html">Andrii Kurinnyi</a>
+        </address>
+        
+  </h6>
+  In <a href=".././category/web.html">Web</a>. 
+<p>Tags: <a href=".././tag/django.html">django</a>, <a href=".././tag/sphinx.html">sphinx</a>, <a href=".././tag/geo.html">geo</a></p>
+
+
+
+
+</div><!-- /.post-info --><p>Some of the projects I’ve been working on recently, required from me
+implementing search by a zip code.
+One of the approaches would be to use GeoDjango or geopy.
+This will solve the problem of looking up object by distance, but most
+of the time you want to have full-text search index on your models as
+well. So, wouldn’t it be wonderful if our search engine supported
+queries by distance?
+Turns out that with <a class="reference external" href="http://sphinxsearch.com/docs/current.html">Sphinx</a> you can do precisely that.</p>
+<p>Sphinx installation and integration with django are described in depth
+in the following tutorials:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.davidcramer.net/code/79/in-depth-django-sphinx-tutorial.html">In-Depth django-sphinx tutorial</a></li>
+<li><a class="reference external" href="http://pkarl.com/articles/guide-django-full-text-search-sphinx-and-django-sp/">A Guide to Django full-text search with Sphinx and django-sphinx</a></li>
+</ul>
+<p>The only thing I wanted to mention, is that you can also install Sphinx
+with PostgreSQL. To do so you will need to have
+<em>postgresql-server-8.3-devel</em> on Debian installed and configure sphinx
+with <em>—with-pgsql</em> flag.</p>
+<p>Now, let’s say you have a site with jobs.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Job</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="n">tags</span> <span class="o">=</span> <span class="n">TagField</span><span class="p">()</span>
+    <span class="n">latitude</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>
+    <span class="n">longitude</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>
+
+    <span class="n">search</span> <span class="o">=</span> <span class="n">SphinxSearch</span><span class="p">(</span>
+          <span class="n">index</span><span class="o">=</span><span class="s">&#39;jobs_job&#39;</span><span class="p">,</span>
+          <span class="n">weights</span><span class="o">=</span><span class="p">{</span>
+              <span class="s">&#39;title&#39;</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span>
+              <span class="s">&#39;description&#39;</span><span class="p">:</span><span class="mi">50</span><span class="p">,</span>
+              <span class="s">&#39;tags&#39;</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span>
+         <span class="p">})</span>
+</pre></div>
+<p>If you run <em>./manage.py generate_sphinx_config jobs</em>, it will give you
+basic index config.
+You can tweak it by converting latitude and longitude to radians and
+declaring them as attributes.</p>
+<pre class="literal-block">
+source jobs_job
+{
+    type                = pgsql
+    sql_host            = localhost
+    sql_user            = youruser
+    sql_pass            = yourpassword
+    sql_db              = sphinx_example
+    sql_port            =
+    sql_query_pre       =
+    sql_query_post      =
+    sql_query           = \
+        SELECT id, title, description, tags, radians(latitude) as latit, radians(longitude) as longit\
+        FROM jobs_job
+    sql_query_info      = SELECT * FROM `jobs_job` WHERE `id` = $id
+
+    sql_attr_float      = latit
+    sql_attr_float      = longit
+}
+
+index jobs_job
+{
+    source          = jobs_job
+    path            = /var/data/jobs_job
+    docinfo         = extern
+    morphology      = none
+    stopwords       =
+    min_word_len    = 2
+    charset_type    = utf-8
+    min_prefix_len  = 0
+    min_infix_len   = 0
+}
+</pre>
+<p>Now you can use “geoanchor” attribute of the SphinxSearch object to
+perform search by distance.
+The only thing you need to remember, Sphinx expects your latitude and
+longitude to be in radians,
+and it returns distance in meters. 1 mile is approximately 1609.344
+meters.
+For example, if you want to search for all jobs in 10 mile radius from
+given geographic point:</p>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.core.management</span> <span class="kn">import</span> <span class="n">setup_environ</span>
+<span class="kn">import</span> <span class="nn">settings</span>
+
+<span class="n">setup_environ</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">jobs.models</span> <span class="kn">import</span> <span class="n">Job</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="k">def</span> <span class="nf">to_radians</span><span class="p">(</span><span class="n">latit</span><span class="p">,</span> <span class="n">longit</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">latit</span><span class="p">),</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">longit</span><span class="p">))</span>
+
+<span class="n">latit</span><span class="p">,</span> <span class="n">longit</span> <span class="o">=</span> <span class="n">to_radians</span><span class="p">(</span><span class="mf">34.095259</span><span class="p">,</span> <span class="o">-</span><span class="mf">118.347997</span><span class="p">)</span>
+
+<span class="n">mi</span> <span class="o">=</span> <span class="mf">1609.344</span>
+
+<span class="n">job_list</span> <span class="o">=</span> <span class="p">(</span>
+     <span class="n">Job</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">geoanchor</span><span class="p">(</span><span class="s">&#39;latit&#39;</span><span class="p">,</span> <span class="s">&#39;longit&#39;</span><span class="p">,</span> <span class="n">latit</span><span class="p">,</span> <span class="n">longit</span><span class="p">)</span>
+               <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="s">&#39;@geodist__lt&#39;</span><span class="p">:</span><span class="mi">10</span><span class="o">*</span><span class="n">mi</span><span class="p">})</span>
+               <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s">&#39;-@geodist&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="k">print</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">sphinx</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">job_list</span><span class="p">]</span>
+</pre></div>
+<p>Geoanchor syntax requires you to specify names of the Sphinx attributes
+for latitude and longitude.
+You have them in your index config as ‘latit’ and ‘longit’.
+Sphinx is using “magic” &#64;geodist attribute to work with distance,
+which doesn’t work with python syntax for function named arguments,
+that’s why you have to use **kwargs syntax in filter.</p>
+<p>You can find full code of Django project on GitHub:</p>
+<p><a class="reference external" href="http://github.com/zen4ever/djangosphinx_example">http://github.com/zen4ever/djangosphinx_example</a></p>
+<p>UPDATE: Updated attribute names, so they won’t be similar to database
+keywords, thanks to <a class="reference external" href="http://twitter.com/imns81">&#64;imns81</a></p>
+
+                </article>
+                
+                    
+                
+            </div><!-- /#featured -->
+            
+        
+        
+        
+            </ol><!-- /#posts-list -->
+            
+            </section><!-- /#content -->
+        
+    
+
+
+    </div>
+
+    <div class="three columns">
+        <div>
+                <h4>Categories</h4>
+                <ul class="side-nav">
+                
+                    <li ><a href=".././category/web.html">Web</a></li>
+                
+                </ul>
+        </div><!-- /.blogroll -->
+        
+                <div>
+                        <h4>Blogroll</h4>
+                        <ul class="side-nav">
+                        
+                            <li><a href="http://docs.notmyidea.org/alexis/pelican/">Pelican</a></li>
+                        
+                            <li><a href="http://python.org">Python.org</a></li>
+                        
+                            <li><a href="http://jinja.pocoo.org">Jinja2</a></li>
+                        
+                        </ul>
+                </div><!-- /.blogroll -->
+        
+        
+                <div class="panel">
+                        <h4>Social</h4>
+                        <ul class="side-nav">
+                            <li><a href="http://www.zen4ever.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">Atom feed</a></li>
+                            
+
+                        
+                            <li><a href="http://twitter.com/zen4ever">Twitter</a></li>
+                        
+                            <li><a href="https://alpha.app.net/zen4ever">App.net</a></li>
+                        
+                            <li><a href="https://github.com/zen4ever">Github</a></li>
+                        
+                        </ul>
+                </div><!-- /.social -->
+        
+    </div>
+  </div>
+  <footer class="row">
+    <hr />
+    <div class="twelve columns">
+      <p><address id="about" class="vcard body">
+        Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+        which takes great advantage of <a href="http://python.org">Python</a>.
+        Theme is created using <a href="http://foundation.zurb.com">Zurb Foundation 3.0</a>.
+      </address><!-- /#about --></p>
+    </div>
+  </footer>
+
+  <!-- Included JS Files (Compressed) -->
+  <script src=".././theme/javascripts/jquery.js"></script>
+  <script src=".././theme/javascripts/foundation.min.js"></script>
+  
+  <!-- Initialize JS Plugins -->
+  <script src=".././theme/javascripts/app.js"></script>
+</body>
+</html>

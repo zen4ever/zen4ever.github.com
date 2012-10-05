@@ -1,0 +1,60 @@
+/* Artfully masterminded by ZURB  */
+
+/* -------------------------------------------------- 
+   Table of Contents
+-----------------------------------------------------
+:: Shared Styles
+:: Page Name 1
+:: Page Name 2
+*/
+
+
+/* -----------------------------------------
+   Shared Styles
+----------------------------------------- */
+
+
+
+/* -----------------------------------------
+   Page Name 1
+----------------------------------------- */
+
+
+
+
+/* -----------------------------------------
+   Page Name 2
+----------------------------------------- */
+
+pre {
+    background-color: #000;
+    color: #FFF;
+    padding: 10px;
+    margin-bottom: 17px;
+    overflow: auto
+}
+
+.contain-to-grid nav.top-bar {
+    margin-bottom: 17px;
+}
+
+.panel abbr {
+    font-size: 100%;
+    line-height: 1.7;
+}
+ul.side-nav {
+    padding: 0;
+    margin-bottom: 34px;
+}
+.panel ul.side-nav {
+    padding: 0;
+    margin: 0;
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
+}
+.post-info {
+    margin-left: 10px;
+}

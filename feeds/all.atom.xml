@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Andrii Kurinnyi's Blog</title><link href="http://www.zen4ever.com/" rel="alternate"></link><link href="http://www.zen4ever.com/feeds/all.atom.xml" rel="self"></link><id>http://www.zen4ever.com/</id><updated>2010-06-10T08:44:00-07:00</updated><entry><title>Django, Sphinx and search by distance</title><link href="http://www.zen4ever.com/django-sphinx-and-search-by-distance.html" rel="alternate"></link><updated>2010-06-10T08:44:00-07:00</updated><author><name>Andrii Kurinnyi</name></author><id>tag:www.zen4ever.com,2010-06-10:django-sphinx-and-search-by-distance.html</id><summary type="html">&lt;p&gt;Some of the projects I’ve been working on recently, required from me
+implementing search by a zip code.
+One of the approaches would be to use GeoDjango or geopy.
+This will solve the problem of looking up object by distance, but most
+of the time you want to have full-text search index on your models as
+well. So, wouldn’t it be wonderful if our search engine supported
+queries by distance?
+Turns out that with &lt;a class="reference external" href="http://sphinxsearch.com/docs/current.html"&gt;Sphinx&lt;/a&gt; you can do precisely that.&lt;/p&gt;
+&lt;p&gt;Sphinx installation and integration with django are described in depth
+in the following tutorials:&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;&lt;a class="reference external" href="http://www.davidcramer.net/code/79/in-depth-django-sphinx-tutorial.html"&gt;In-Depth django-sphinx tutorial&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="http://pkarl.com/articles/guide-django-full-text-search-sphinx-and-django-sp/"&gt;A Guide to Django full-text search with Sphinx and django-sphinx&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The only thing I wanted to mention, is that you can also install Sphinx
+with PostgreSQL. To do so you will need to have
+&lt;em&gt;postgresql-server-8.3-devel&lt;/em&gt; on Debian installed and configure sphinx
+with &lt;em&gt;—with-pgsql&lt;/em&gt; flag.&lt;/p&gt;
+&lt;p&gt;Now, let’s say you have a site with jobs.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Job&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;models&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Model&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;title&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;models&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;CharField&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;max_length&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;255&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;description&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;models&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;TextField&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;tags&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;TagField&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;latitude&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;models&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;FloatField&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="n"&gt;longitude&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;models&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;FloatField&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+    &lt;span class="n"&gt;search&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;SphinxSearch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+          &lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;jobs_job&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+          &lt;span class="n"&gt;weights&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+              &lt;span class="s"&gt;&amp;#39;title&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+              &lt;span class="s"&gt;&amp;#39;description&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+              &lt;span class="s"&gt;&amp;#39;tags&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;70&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+         &lt;span class="p"&gt;})&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;If you run &lt;em&gt;./manage.py generate_sphinx_config jobs&lt;/em&gt;, it will give you
+basic index config.
+You can tweak it by converting latitude and longitude to radians and
+declaring them as attributes.&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+source jobs_job
+{
+    type                = pgsql
+    sql_host            = localhost
+    sql_user            = youruser
+    sql_pass            = yourpassword
+    sql_db              = sphinx_example
+    sql_port            =
+    sql_query_pre       =
+    sql_query_post      =
+    sql_query           = \
+        SELECT id, title, description, tags, radians(latitude) as latit, radians(longitude) as longit\
+        FROM jobs_job
+    sql_query_info      = SELECT * FROM `jobs_job` WHERE `id` = $id
+
+    sql_attr_float      = latit
+    sql_attr_float      = longit
+}
+
+index jobs_job
+{
+    source          = jobs_job
+    path            = /var/data/jobs_job
+    docinfo         = extern
+    morphology      = none
+    stopwords       =
+    min_word_len    = 2
+    charset_type    = utf-8
+    min_prefix_len  = 0
+    min_infix_len   = 0
+}
+&lt;/pre&gt;
+&lt;p&gt;Now you can use “geoanchor” attribute of the SphinxSearch object to
+perform search by distance.
+The only thing you need to remember, Sphinx expects your latitude and
+longitude to be in radians,
+and it returns distance in meters. 1 mile is approximately 1609.344
+meters.
+For example, if you want to search for all jobs in 10 mile radius from
+given geographic point:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;django.core.management&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;setup_environ&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;settings&lt;/span&gt;
+
+&lt;span class="n"&gt;setup_environ&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;jobs.models&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Job&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;math&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;to_radians&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;latit&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;longit&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;math&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;radians&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;latit&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;&lt;span class="n"&gt;math&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;radians&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;longit&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+&lt;span class="n"&gt;latit&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;longit&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;to_radians&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;34.095259&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;118.347997&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;mi&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;1609.344&lt;/span&gt;
+
+&lt;span class="n"&gt;job_list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+     &lt;span class="n"&gt;Job&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;search&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;geoanchor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;latit&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;longit&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;latit&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;longit&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+               &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;filter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;@geodist__lt&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;mi&lt;/span&gt;&lt;span class="p"&gt;})&lt;/span&gt;
+               &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;order_by&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;-@geodist&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sphinx&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;job_list&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Geoanchor syntax requires you to specify names of the Sphinx attributes
+for latitude and longitude.
+You have them in your index config as ‘latit’ and ‘longit’.
+Sphinx is using “magic” &amp;#64;geodist attribute to work with distance,
+which doesn’t work with python syntax for function named arguments,
+that’s why you have to use **kwargs syntax in filter.&lt;/p&gt;
+&lt;p&gt;You can find full code of Django project on GitHub:&lt;/p&gt;
+&lt;p&gt;&lt;a class="reference external" href="http://github.com/zen4ever/djangosphinx_example"&gt;http://github.com/zen4ever/djangosphinx_example&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;UPDATE: Updated attribute names, so they won’t be similar to database
+keywords, thanks to &lt;a class="reference external" href="http://twitter.com/imns81"&gt;&amp;#64;imns81&lt;/a&gt;&lt;/p&gt;
+</summary><category term="django"></category><category term="sphinx"></category><category term="geo"></category></entry></feed>

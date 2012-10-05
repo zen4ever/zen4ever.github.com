@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="{{ DEFAULT_LANG }}"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="{{ DEFAULT_LANG }}"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="{{ DEFAULT_LANG }}"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="{{ DEFAULT_LANG }}"> <!--<![endif]-->
+<head>
+  {% block head %}
+  <meta charset="utf-8" />
+
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width" />
+
+  <title>{% block title %}{{ SITENAME }}{% endblock title %}</title>
+
+  {% if FEED_ATOM %}
+  <link href="{{ FEED_DOMAIN }}/{{ FEED_ATOM }}" type="application/atom+xml" rel="alternate" title="{{ SITENAME }} Atom Feed" />
+  {% endif %}
+  {% if FEED_RSS %}
+  <link href="{{ FEED_DOMAIN }}/{{ FEED_RSS }}" type="application/rss+xml" rel="alternate" title="{{ SITENAME }} RSS Feed" />
+  {% endif %}
+  {% if CATEGORY_FEED_ATOM %}
+  <link href="{{ FEED_DOMAIN }}/{{ CATEGORY_FEED_ATOM }}" type="application/atom+xml" rel="alternate" title="{{ SITENAME }} Categories Atom Feed" />
+  {% endif %}
+  {% if CATEGORY_FEED_RSS %}
+  <link href="{{ FEED_DOMAIN }}/{{ CATEGORY_FEED_RSS }}" type="application/rss+xml" rel="alternate" title="{{ SITENAME }} Categories RSS Feed" />
+  {% endif %}
+  {% if TAG_FEED_ATOM %}
+  <link href="{{ FEED_DOMAIN }}/{{ TAG_FEED_ATOM }}" type="application/atom+xml" rel="alternate" title="{{ SITENAME }} Tags Atom Feed" />
+  {% endif %}
+  {% if TAG_FEED_RSS %}
+  <link href="{{ FEED_DOMAIN }}/{{ TAG_FEED_RSS }}" type="application/rss+xml" rel="alternate" title="{{ SITENAME }} Tags RSS Feed" />
+  {% endif %}
+  
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700' rel='stylesheet' type='text/css'>
+  <!-- Included CSS Files (Compressed) -->
+  <link rel="stylesheet" href="{{ SITEURL }}/theme/stylesheets/foundation.min.css" type="text/css" />
+  <link rel="stylesheet" href="{{ SITEURL }}/theme/stylesheets/pygment.css" type="text/css" />
+  <link rel="stylesheet" href="{{ SITEURL }}/theme/stylesheets/{{ CSS_FILE }}" type="text/css" />
+
+  <script src="{{ SITEURL }}/theme/javascripts/modernizr.foundation.js"></script>
+
+  <!-- IE Fix for HTML5 Tags -->
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  {% endblock %}
+</head>
+<body>
+  {% include 'github.html' %}
+  <!-- Top Bar -->
+
+  <div class="contain-to-grid">
+    <nav class="top-bar">
+      <ul>
+        <!-- Title Area -->
+        <li class="name">
+          <h1><a href="{{ SITEURL }}">{{ SITENAME }} {% if SITESUBTITLE %} <strong>{{ SITESUBTITLE }}</strong>{% endif %}</a></h1>
+        </li>
+      </ul>
+
+        <!-- Right Nav Section -->
+        <section>
+          <ul class="right">
+          {% for title, link in MENUITEMS %}
+              <li class="divider"></li>
+              <li><a href="{{ link }}">{{ title }}</a></li>
+          {% endfor %}
+          {% if DISPLAY_PAGES_ON_MENU %}
+          {% for page in PAGES %}
+              <li class="divider"></li>
+              <li><a href="{{ SITEURL }}/{{ page.url }}">{{ page.title }}</a></li>
+          {% endfor %}
+          {% endif %}
+              <li class="divider"></li>
+          </ul>
+        </section>
+    </nav>
+  </div>
+
+  <!-- End Top Bar -->
+
+  <div class="row">
+    <div class="nine columns" role="content">
+      {% block content %}
+      {% endblock %}
+    </div>
+
+    <div class="three columns">
+        <div>
+                <h4>Categories</h4>
+                <ul class="side-nav">
+                {% for cat, null in categories %}
+                    <li {% if cat == category %}class="active"{% endif %}><a href="{{ SITEURL }}/{{ cat.url }}">{{ cat }}</a></li>
+                {% endfor %}
+                </ul>
+        </div><!-- /.blogroll -->
+        {% if LINKS %}
+                <div>
+                        <h4>Blogroll</h4>
+                        <ul class="side-nav">
+                        {% for name, link in LINKS %}
+                            <li><a href="{{ link }}">{{ name }}</a></li>
+                        {% endfor %}
+                        </ul>
+                </div><!-- /.blogroll -->
+        {% endif %}
+        {% if SOCIAL %}
+                <div class="panel">
+                        <h4>Social</h4>
+                        <ul class="side-nav">
+                            <li><a href="{{ FEED_DOMAIN }}/{{ FEED_ATOM }}" type="application/atom+xml" rel="alternate">Atom feed</a></li>
+                            {% if FEED_RSS %}
+                            <li><a href="{{ FEED_DOMAIN }}/{{ FEED_RSS }}" type="application/rss+xml" rel="alternate">RSS feed</a></li>
+                            {% endif %}
+
+                        {% for name, link in SOCIAL %}
+                            <li><a href="{{ link }}">{{ name }}</a></li>
+                        {% endfor %}
+                        </ul>
+                </div><!-- /.social -->
+        {% endif %}
+    </div>
+  </div>
+  <footer class="row">
+    <hr />
+    <div class="twelve columns">
+      <p><address id="about" class="vcard body">
+        Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+        which takes great advantage of <a href="http://python.org">Python</a>.
+        Theme is created using <a href="http://foundation.zurb.com">Zurb Foundation 3.0</a>.
+      </address><!-- /#about --></p>
+    </div>
+  </footer>
+
+  <!-- Included JS Files (Compressed) -->
+  <script src="{{ SITEURL }}/theme/javascripts/jquery.js"></script>
+  <script src="{{ SITEURL }}/theme/javascripts/foundation.min.js"></script>
+  
+  <!-- Initialize JS Plugins -->
+  <script src="{{ SITEURL }}/theme/javascripts/app.js"></script>
+</body>
+</html>
