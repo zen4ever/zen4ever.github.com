@@ -32,16 +32,16 @@ help:
 	@echo '                                                                       '
 
 
-html: $(OUTPUTDIR)/index.html
+html: clean $(OUTPUTDIR)/index.html
 	@echo 'Done'
 
 $(OUTPUTDIR)/%.html:
 	$(PELICAN) $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
 
 clean:
-	find $(OUTPUTDIR) -mindepth 1 -delete
+	$(BASEDIR)/clean.sh $(BASEDIR)
 
-regenerate:
+regenerate: clean
 	$(PELICAN) -r $(INPUTDIR) -o $(OUTPUTDIR) -s $(CONFFILE) $(PELICANOPTS)
 
 serve:
