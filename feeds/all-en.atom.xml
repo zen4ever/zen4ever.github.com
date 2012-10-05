@@ -108,8 +108,7 @@ You have them in your index config as ‘latit’ and ‘longit’.
 Sphinx is using “magic” &amp;#64;geodist attribute to work with distance,
 which doesn’t work with python syntax for function named arguments,
 that’s why you have to use **kwargs syntax in filter.&lt;/p&gt;
-&lt;p&gt;You can find full code of Django project on GitHub:&lt;/p&gt;
-&lt;p&gt;&lt;a class="reference external" href="http://github.com/zen4ever/djangosphinx_example"&gt;http://github.com/zen4ever/djangosphinx_example&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;You can find full code of Django project on &lt;a class="reference external" href="http://github.com/zen4ever/djangosphinx_example"&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;UPDATE: Updated attribute names, so they won’t be similar to database
 keywords, thanks to &lt;a class="reference external" href="http://twitter.com/imns81"&gt;&amp;#64;imns81&lt;/a&gt;&lt;/p&gt;
 </summary><category term="django"></category><category term="sphinx"></category><category term="geo"></category></entry></feed>

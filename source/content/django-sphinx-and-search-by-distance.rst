@@ -125,9 +125,7 @@ Sphinx is using “magic” @geodist attribute to work with distance,
 which doesn’t work with python syntax for function named arguments,
 that’s why you have to use \*\*kwargs syntax in filter.
 
-You can find full code of Django project on GitHub:
-
-`http://github.com/zen4ever/djangosphinx\_example`_
+You can find full code of Django project on `GitHub`_.
 
 UPDATE: Updated attribute names, so they won’t be similar to database
 keywords, thanks to `@imns81`_
@@ -136,5 +134,5 @@ keywords, thanks to `@imns81`_
 .. _Sphinx: http://sphinxsearch.com/docs/current.html
 .. _In-Depth django-sphinx tutorial: http://www.davidcramer.net/code/79/in-depth-django-sphinx-tutorial.html
 .. _A Guide to Django full-text search with Sphinx and django-sphinx: http://pkarl.com/articles/guide-django-full-text-search-sphinx-and-django-sp/
-.. _`http://github.com/zen4ever/djangosphinx\_example`: http://github.com/zen4ever/djangosphinx_example
+.. _GitHub: http://github.com/zen4ever/djangosphinx_example
 .. _@imns81: http://twitter.com/imns81
