@@ -15,9 +15,6 @@ DEFAULT_LANG = 'en'
 
 # Blogroll
 LINKS =  (
-    ('Pelican', 'http://docs.notmyidea.org/alexis/pelican/'),
-    ('Python.org', 'http://python.org'),
-    ('Jinja2', 'http://jinja.pocoo.org'),
 )
 
 # Social widget
